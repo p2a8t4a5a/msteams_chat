@@ -21,7 +21,7 @@ export class ChatWindow extends BrowserWindow {
             },
             show: false,
             resizable: false,
-            alwaysOnTop: true,
+            //alwaysOnTop: true,
             frame: false,
             transparent: true,
             focusable: false,
@@ -36,6 +36,7 @@ export class ChatWindow extends BrowserWindow {
 
     private bind_events(){
         this.once('ready-to-show', () => {
+            this.setAlwaysOnTop(true);
             this.setIgnoreMouseEvents(true, {
                 forward: true
             });
