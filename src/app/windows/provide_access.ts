@@ -5,14 +5,14 @@ import * as path from "path";
 const ui_events_pipe = 'ui-events-pipe';
 
 export class ProvideAccessWindow extends BrowserWindow {
-    constructor(private readyToShow?: Function, private showByDefault: boolean = true){
+    constructor(private readyToShow?: Function){
         //height used values: 325, 280, 265
         super({
             width: 640,
             height: 265,
             webPreferences: {
                 nodeIntegration: true,
-                //devTools: false
+                devTools: false
             },
             show: false,
             resizable: false,
@@ -25,13 +25,9 @@ export class ProvideAccessWindow extends BrowserWindow {
     }
 
     private bind_events(){
-        if(this.showByDefault){
-            this.once('ready-to-show', () => {
-                this.show();
-                
-                if(this.readyToShow) this.readyToShow();
-            });
-        }
+        this.once('ready-to-show', () => {
+            if(this.readyToShow) this.readyToShow();
+        });
     }
 
     private bind_user_events(){

@@ -82,7 +82,9 @@ export default class Application {
             if(msg == 'start_chat'){
                 this.provideAccessWindow?.hide();
 
-                this.chatWindow = new ChatWindow(this.teams_api);
+                this.chatWindow = new ChatWindow(this.teams_api, () => {
+                    this.chatWindow?.show();
+                });
 
                 this.provideAccessWindow?.close();
                 this.provideAccessWindow = null;
@@ -107,6 +109,7 @@ export default class Application {
 
     public requestUserToken(){
         this.provideAccessWindow = new ProvideAccessWindow(() => {
+            this.provideAccessWindow?.show();
             this.testUserToken();
         });
 

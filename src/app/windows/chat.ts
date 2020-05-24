@@ -42,17 +42,14 @@ export class ChatWindow extends BrowserWindow {
     }
 
     private bind_events(){
-        if(this.showByDefault){
-            this.once('ready-to-show', () => {
-                this.setIgnoreMouseEvents(true, {
-                    forward: true
-                });
-                this.setPosition(screen.getPrimaryDisplay().bounds.width-this.getBounds().width, 50);
-                this.show();
-                
-                if(this.readyToShow) this.readyToShow();
+        this.once('ready-to-show', () => {
+            this.setIgnoreMouseEvents(true, {
+                forward: true
             });
-        }
+            this.setPosition(screen.getPrimaryDisplay().bounds.width-this.getBounds().width, 50);
+            
+            if(this.readyToShow) this.readyToShow();
+        });
     }
 
     private bind_user_events(){
