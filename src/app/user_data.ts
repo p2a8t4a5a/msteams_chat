@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import {Utils} from "./utils";
 
 export class UserData {
     private cached_data: any;
@@ -22,5 +23,8 @@ export class UserData {
             fs.writeFileSync(this.filename, JSON.stringify(data));
         }
     }
-    
+
+    get isValid() {
+        return Utils.objectIsValid(this.data);
+    }
 }

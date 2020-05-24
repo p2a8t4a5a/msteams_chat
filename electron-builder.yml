@@ -1,0 +1,10 @@
+appId: com.lexagr.msteams_chat
+directories:
+  buildResources: './dist'
+  output: './build'
+files:
+  - dist/**/*
+  - node_modules/**/*
+win:
+  icon: app.ico
+  artifactName: ${name}-setup.${ext}

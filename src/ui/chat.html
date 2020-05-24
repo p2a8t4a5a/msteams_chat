@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Microsoft Teams: Chat</title>
+
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                padding: 15px;
+            }
+
+            ul.messages {
+                height: 100%;
+                /* width: 100%; */
+                /* width: 450px; */
+                width: 250px;
+                list-style: none;
+                border-radius: 4px;
+                padding: 15px;
+                margin: 0;
+                text-align: right;
+                float: right;
+                box-sizing: border-box;
+                opacity: 0.3;
+                background-color: #000;
+                transition: opacity .2s;
+            }
+
+            ul.messages:empty {
+                display: none;
+            }
+
+            ul.messages.highlight {
+                opacity: 0.6;
+            }
+
+            /* ul.messages li.message {
+                width: 100%;
+            } */
+
+            li.message+li.message {
+                margin-top: 8px;
+            }
+
+            ul.messages li.message div.author {
+                color: #ffdf00;
+            }
+
+            ul.messages li.message div.content {
+                color: #e0e0e0;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- <ul class="messages">
+            <li class="message">
+                <div class="author">Груднистый Алексей Павлович</div>
+                <div class="content">это мой крутой чат :-)</div>
+            </li>
+            <li class="message">
+                <div class="author">First Middle Last</div>
+                <div class="content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc feugiat interdum turpis vitae tristique. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque quis blandit justo. Vestibulum mattis consequat commodo. Vivamus finibus velit felis, in vestibulum lectus lobortis quis. Sed nec porta turpis, eget condimentum lacus. Proin molestie rhoncus ex, tempor convallis purus porttitor non. Maecenas ac pellentesque libero, ac tempor ipsum.</div>
+            </li>
+            <li class="message">
+                <div class="author">First Middle Last</div>
+                <div class="content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc feugiat interdum turpis vitae tristique. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque quis blandit justo. Vestibulum mattis consequat commodo. Vivamus finibus velit felis, in vestibulum lectus lobortis quis. Sed nec porta turpis, eget condimentum lacus. Proin molestie rhoncus ex, tempor convallis purus porttitor non. Maecenas ac pellentesque libero, ac tempor ipsum.</div>
+            </li>
+        </ul> -->
+        <ul class="messages"></ul>
+        <script src="js/chat.js"></script>
+    </body>
+</html>

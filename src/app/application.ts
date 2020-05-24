@@ -1,14 +1,20 @@
-import {dialog, BrowserWindow, ipcMain} from "electron";
+import {dialog, BrowserWindow, ipcMain, clipboard, Menu, webContents} from "electron";
 import {Utils} from "./utils";
 import * as path from "path";
 import {UserData} from "./user_data";
 import {Microsoft} from "./ms_api/teams";
-import axios from "axios";
 
-export class Application {
-    private mainWindow:Electron.BrowserWindow | null = null;
-    private user_data:UserData | null = null;
+import {ProvideAccessWindow} from "./windows/provide_access";
+import { ChatWindow } from "./windows/chat";
+
+const backend_events_pipe = 'backend-events-pipe';
+
+export default class Application {    
+    private user_data: UserData | null = null;
     private teams_api: Microsoft.API.Teams | null = null;
+
+    private provideAccessWindow: BrowserWindow | null = null;
+    private chatWindow: BrowserWindow | null = null;
 
     constructor(private app: Electron.App, private protocol: string){
         this.user_data = new UserData('./user.dat');
@@ -16,12 +22,12 @@ export class Application {
 
     public start(){
         this.set_second_instance_lock();
+
         this.setup_protocol();
+        this.setup_menu();
+        this.setup_events();
 
         this.requestUserToken();
-        //this.try_acquire_token();
-
-        //this.app.quit();
     }
 
     public set_second_instance_lock(){
@@ -29,21 +35,31 @@ export class Application {
             this.app.quit();
         }else{
             this.app.on('second-instance', (event, commandLine, workingDirectory) => {
-                if(this.mainWindow){
-                    if(this.mainWindow.isMinimized()) this.mainWindow.restore();
-                    if(!this.mainWindow.isFocused) this.mainWindow.focus();
-        
-                    console.log('commandLine:', commandLine);
-        
-                    if(commandLine.length > 0){
-                        var data = commandLine[commandLine.length-1];
-                        if(data.startsWith(`${this.protocol}://`) && (data = data.replace(`${this.protocol}://`, '').replace('/', '').trim()).length > 0){
-                            console.log(`received data from url: "${data}"`);
-                        }else{
-                            dialog.showErrorBox('Token error', `Токен аутентификации не был получен.\nВторой раз приложение должно быть открыто через браузер.\n\nDebug data: "${data}"`);
+                if(this.provideAccessWindow && commandLine.length > 0){
+                    if(this.provideAccessWindow.isMinimized()) this.provideAccessWindow.restore();
+                    this.provideAccessWindow.focus();
+                    this.provideAccessWindow.webContents.send(backend_events_pipe, 'processing_data');
+
+                    var data = commandLine[commandLine.length-1];
+                    console.log(`received data: "${data}"`);
+                    
+                    if(data.startsWith(`${this.protocol}://`)){
+                        data = data.replace(`${this.protocol}://`, '').trim();
+                        if(data[data.length-1] == '/') data = data.slice(0, -1);
+
+                        if(data.length > 0){
+                            data = JSON.parse(Buffer.from(data, 'base64').toString('utf8'));
+                            if(this.user_data){
+                                this.provideAccessWindow.webContents.send(backend_events_pipe, 'saving_data');
+                                this.user_data.data = data;
+
+                                setTimeout(() => this.testUserToken(), 1000);
+                            }
                         }
-                        console.log('workingDirectory:', workingDirectory);
                     }
+                    
+                    // this.provideAccessWindow?.webContents.send(backend_events_pipe, 'checking_token');
+                    // console.log('workingDirectory:', workingDirectory);
                 }
             });
         }
@@ -57,56 +73,67 @@ export class Application {
         }
     }
 
-    public try_acquire_token(){
-        let personalURL = this.getPersonalURL();
-        let userToken = this.getUserToken();
+    private setup_menu() : void {
+        Menu.setApplicationMenu(null);
+    }
 
-        //console.log('personalURL', personalURL);
-        //console.log('userToken', userToken);
-        //console.log('user data:', this.user_data?.data);
+    private setup_events() {
+        ipcMain.on(backend_events_pipe, (event, msg) => {
+            if(msg == 'start_chat'){
+                this.provideAccessWindow?.hide();
 
-        if(Utils.objectIsValid(personalURL, userToken) && personalURL.length > 0 && userToken.length > 0){
-            console.log('user token saved');
-            //console.log('user token saved:', userToken);
-            // try to test token 
-            this.teams_api = new Microsoft.API.Teams(personalURL, userToken);
-            this.teams_api.test_access(() => {
-                console.log('test_access/onHave', 'token is working!');
-                // 
-            }, () => {
-                console.log('test_access/onDeny', 'token is not working');
-                // this.requestUserToken();
-            });
+                this.chatWindow = new ChatWindow(this.teams_api);
 
-            //axios.get('https://api.coindesk.com/v1/bpi/currentprice.json').then(response => console.log(response));
+                this.provideAccessWindow?.close();
+                this.provideAccessWindow = null;
+            }
+        });
+    }
 
-            return;
-        }
+    public testUserToken(){
+        this.provideAccessWindow?.webContents.send(backend_events_pipe, 'checking_token');
+        
+        setTimeout(() => {
+            if(Utils.objectIsValid(this.getPersonalURL(), this.getUserToken(), this.getChatID())){
+                this.teams_api = new Microsoft.API.Teams(this.getPersonalURL(), this.getUserToken(), this.getChatID());
+                this.teams_api.test_access((is_have_access: boolean) => {
+                    this.provideAccessWindow?.webContents.send(backend_events_pipe, is_have_access ? 'token_valid' : 'token_invalid');
+                });
+            }else{
+                this.provideAccessWindow?.webContents.send(backend_events_pipe, 'data_not_found');
+            }
+        }, 3000); // задержка для того, чтобы пользователь успел понять, что ему рендерит окно с инструкцией
     }
 
     public requestUserToken(){
-        // height used values: 325, 280, 265
-        this.mainWindow = Utils.createWindow(640, 265, 'ui/provide_access.html', {
-            show: false,
-            autoHideMenuBar: true,
-            webPreferences: {
-                nodeIntegration: true
-                //devTools: false
-            },
-            //resizable: false,
+        this.provideAccessWindow = new ProvideAccessWindow(() => {
+            this.testUserToken();
         });
 
-        this.mainWindow.once('ready-to-show', () => {
-            this.mainWindow?.show();
-        });
-        //this.mainWindow.webContents.openDevTools();
+        this.provideAccessWindow.webContents.openDevTools();
     }
 
     private getUserToken() {
-        return this.user_data?.data['skype-token'];
+        if(this.user_data?.isValid && Utils.objectIsValid(this.user_data?.data['skype-token'])){
+            return this.user_data.data['skype-token'];
+        }
+
+        return undefined;
     }
 
     private getPersonalURL(){
-        return this.user_data?.data['poll-event'];
+        if(this.user_data?.isValid && Utils.objectIsValid(this.user_data?.data['personal-url'])){
+            return this.user_data.data['personal-url'];
+        }
+
+        return undefined;
+    }
+
+    private getChatID(){
+        if(this.user_data?.isValid && Utils.objectIsValid(this.user_data?.data['chat-id'])){
+            return this.user_data.data['chat-id'];
+        }
+
+        return undefined;
     }
 }

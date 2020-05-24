@@ -4,12 +4,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" /> -->
-        <title>Получение доступа</title>
+        <title>Microsoft Teams: Chat</title>
 
         <style>
             :root {
-                /* --color-style-default: #ff007a; */
-                --color-style-default: black;
+                --color-action: #808080;
+                --color-ready: #00de00;
                 --color-warning: #ec0000;
                 --color-link: #0051e7;
             }
@@ -29,12 +29,17 @@
                 user-select: none;
             }
 
+            body.content_blurred > ul {
+                filter: blur(3px);
+            }
+
             ul {
                 padding: 20px;
                 box-sizing: border-box;
                 margin: 0;
                 margin-left: 18px;
                 list-style: decimal;
+                /* transition: filter .3s ease-in;  */
             }
 
             li:not(:first-child) {
@@ -45,19 +50,16 @@
                 color: var(--color-link);
                 text-decoration: none;
                 border-bottom: 1px dashed;
+                transition: color .2s ease-in;
             }
 
-            /* button.default {
-                color: #fff;
-                background: var(--color-style-default);
-                border: 0;
-                border-radius: 5px;
-                padding: 5px;
-                font-weight: bold;
-                margin: 0 8px;
-                outline: 0;
-                cursor: pointer;
-            } */
+            a[href="#copy_code"] {
+                color: var(--color-action);
+            }
+
+            .hide {
+                display: none!important;
+            }
 
             div.blocked_content {
                 position: absolute;
@@ -81,7 +83,7 @@
     </head>
     <body>
         <ul>
-            <li>Скопируйте <a href="#copy_code" style="color: var(--color-style-default)">код</a></li>
+            <li>Скопируйте <a href="#copy_code">код</a></li>
             <li>Откройте веб-версию <a href="#open_teams">Microsoft Teams</a></li>
             <li>Выберите чат той группы, с которой вы будете заниматся.</li>
             <li>Поскольку мы программисты 😎, давайте откроем консоль, вставим скопированный код и выполним его, чтобы приложение могло получить ваш аутентификационный токен 🔑.<br><span style="color: var(--color-warning);">Ваш токен не уходит за пределы приложения.</span></li>
@@ -89,5 +91,6 @@
             <li>Подождите несколько секунд. Веб-браузер должен переоткрыть это приложение.</li>
             <li>Enjoy! ✌️</li>
         </ul>
+        <script src="js/provide_access.js"></script>
     </body>
 </html>
