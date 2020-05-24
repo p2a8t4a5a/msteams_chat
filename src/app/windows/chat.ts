@@ -1,4 +1,4 @@
-import {ipcMain, app, BrowserWindow, clipboard, dialog, screen, Point} from "electron";
+import {ipcMain, app, BrowserWindow, clipboard, dialog, screen, Point, Tray, Menu} from "electron";
 import * as fs from "fs";
 import {Utils} from "../utils";
 import {Microsoft} from "../ms_api/teams";
@@ -7,17 +7,10 @@ import * as path from "path";
 // const backend_events_pipe = 'backend-events-pipe';
 const ui_events_pipe = 'ui-events-pipe';
 
-enum ChatWindowOpacityState {
-    None = 0,
-    MouseEntered,
-    MouseLeaved
-}
-
 export class ChatWindow extends BrowserWindow {
-    private cursorPoint : Point = {x: 0, y: 0};
-    private opacityState : ChatWindowOpacityState = ChatWindowOpacityState.None;
+    private tray : Tray | null = null;
 
-    constructor(private teams_api?: Microsoft.API.Teams | null, private readyToShow?: Function, private showByDefault: boolean = true){
+    constructor(private teams_api?: Microsoft.API.Teams | null, private readyToShow?: Function){
         super({
             width: 500, // 250 *2
             height: screen.getPrimaryDisplay().bounds.height/2,
@@ -81,6 +74,35 @@ export class ChatWindow extends BrowserWindow {
             }).catch(() => {});
         };
         poll_events();
+
+        ipcMain.on(ui_events_pipe, (event, msg) => {
+            if(msg){
+                if(msg == 'put-to-tray'){
+                    let iconPath = 'dist/ui/img/teams_logo.png';
+                    this.tray = new Tray(iconPath);
+
+                    this.tray.setTitle('MSTeams Chat');
+                    this.tray.setContextMenu(Menu.buildFromTemplate([
+                        {
+                            label: 'Скрыть/показать чат',
+                            click: () => {
+                                if(this.isVisible()){
+                                    this.hide();
+                                }else{
+                                    this.show();
+                                }
+                            }
+                        },
+                        {
+                            label: 'Выйти',
+                            click: () => {
+                                app.quit();
+                            }
+                        }
+                    ]));
+                }
+            }
+        });
 
         // setInterval(() => {
         //     this.webContents.send(ui_events_pipe, 'new_message', {

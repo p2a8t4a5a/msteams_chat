@@ -4,6 +4,8 @@ const $ = require("jquery");
 const ui_events_pipe = 'ui-events-pipe';
 const max_window_height = window.outerHeight/1.2;
 
+ipcRenderer.send(ui_events_pipe, 'put-to-tray');
+
 ipcRenderer.on(ui_events_pipe, (event, msg, data) => {
     if(msg){
         if(msg == 'new_message' && data){
