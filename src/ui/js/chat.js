@@ -35,6 +35,7 @@ ipcRenderer.on(ui_events_pipe, (event, msg, data) => {
             let messages_block = $('ul.messages');
             let messages = messages_block.find('li.message');
 
+            $('.content-prompt').closest('li.message').remove();
             messages_block.append(newMsg);
 
             if(messages_block.height() > max_window_height){
