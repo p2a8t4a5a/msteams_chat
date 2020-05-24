@@ -1,4 +1,4 @@
-import {ipcMain, BrowserWindow, clipboard, dialog} from "electron";
+import {app, ipcMain, BrowserWindow, clipboard, dialog} from "electron";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -37,7 +37,7 @@ export class ProvideAccessWindow extends BrowserWindow {
     private bind_user_events(){
         ipcMain.on(ui_events_pipe, (event, msg) => {
             if(msg == 'instruction_copy'){
-                let instructionCodePath = 'dist/payload/token-sniffer.txt';
+                let instructionCodePath = path.resolve(app.getAppPath(), 'dist/payload/token-sniffer.txt');
 
                 fs.readFile(instructionCodePath, (err, data: Buffer) => {
                     if(err){
