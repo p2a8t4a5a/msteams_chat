@@ -96,6 +96,7 @@ export class ChatWindow extends BrowserWindow {
                         {
                             label: 'Выйти',
                             click: () => {
+                                this.tray?.destroy();
                                 app.quit();
                             }
                         }
