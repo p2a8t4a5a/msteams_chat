@@ -10,7 +10,7 @@ const output_path = path.resolve(__dirname, 'dist');
 module.exports = [
     {
         entry: './src/app/main',
-        mode: 'development',
+        mode: 'production',
         target: 'electron-main',
         module: {
             rules: [
@@ -41,6 +41,11 @@ module.exports = [
             path: output_path
         },
         plugins: [
+            new CopyWebpackPlugin({
+                patterns: [
+                    {from: path.resolve(__dirname, 'src/app/payload'), to: path.resolve(output_path, 'payload')}
+                ]
+            }),
             new CopyWebpackPlugin({
                 patterns: [
                     {from: path.resolve(__dirname, 'src/ui'), to: path.resolve(output_path, 'ui')}
