@@ -16,7 +16,7 @@
                 height: 100%;
                 /* width: 100%; */
                 /* width: 450px; */
-                width: 250px;
+                width: 280px;
                 list-style: none;
                 border-radius: 4px;
                 padding: 15px;
@@ -27,13 +27,15 @@
                 opacity: 0.3;
                 background-color: #000;
                 transition: opacity .2s;
+                overflow: hidden;
+                word-break: break-all;
             }
 
             ul.messages:empty {
                 display: none;
             }
 
-            ul.messages.highlight {
+            ul.messages:hover {
                 opacity: 0.6;
             }
 
@@ -41,7 +43,7 @@
                 width: 100%;
             } */
 
-            li.message+li.message {
+            ul.messages li.message li.message+li.message {
                 margin-top: 8px;
             }
 
@@ -51,6 +53,14 @@
 
             ul.messages li.message div.content {
                 color: #e0e0e0;
+            }
+
+            ul.messages li.message img {
+                width: 100%;
+            }
+
+            ul.messages li.message img.emoji {
+                width: auto;
             }
         </style>
     </head>

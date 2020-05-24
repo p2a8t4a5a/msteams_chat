@@ -4,25 +4,25 @@ const $ = require("jquery");
 const ui_events_pipe = 'ui-events-pipe';
 const max_window_height = window.outerHeight/1.2;
 
-$('ul.messages').on('mouseenter', function() {
-    $(this).addClass('highlight');
-});
-
-$('ul.messages').on('mouseleave', function() {
-    $(this).removeClass('highlight');
-});
-
 ipcRenderer.on(ui_events_pipe, (event, msg, data) => {
     if(msg){
         if(msg == 'new_message' && data){
             if($(`li.message[data-message-id="${data.message_id}"]`).length > 0) return; // message already exists
 
             if(data.message_type == 'RichText/Html'){
-                if(data.content.search('animated-emoticon') != -1){
-                    data.content = `<img src="${$(data.content).find('img').attr('src')}" alt="emoji">`;
-                }else{
-                    data.content = $(data.content).text();
-                }
+                let elementBuild = $(data.content);
+
+                let images = ''; // need parser for emoji/images?
+                elementBuild.find('img').each((i, e) => {
+                    if($(e).attr('itemtype').search('schema.skype.com/Emoji') != -1){
+                        images += `<img src="${$(e).attr('src')}" alt="image" class="emoji">`;
+                    }else{
+                        //images += `(${$(e).attr('src')}) <img src="${$(e).attr('src')}" alt="image">`;
+                        images += `<картинка>`; // надо загружать картинку либо с куками, либо с хидером Authorization
+                    }
+                });
+                data.content = `${elementBuild.text()} ${images}`;
+                //data.content = $(data.content).text();
             }
 
             let newMsg = $(`<li class="message" data-message-id="${data.message_id}">

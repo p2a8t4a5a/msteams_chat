@@ -110,7 +110,7 @@ export default class Application {
             this.testUserToken();
         });
 
-        this.provideAccessWindow.webContents.openDevTools();
+        // this.provideAccessWindow.webContents.openDevTools();
     }
 
     private getUserToken() {

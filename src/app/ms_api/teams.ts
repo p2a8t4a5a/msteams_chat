@@ -14,10 +14,8 @@ export namespace Microsoft {
             public test_access(callback: (is_have_access: boolean) => any): void {
                 this.make_poll_event().then((response) => {
                     if(callback) callback(true);
-                    console.log('Microsoft::API::Teams/debug:', Buffer.from(JSON.stringify(response.data), 'utf8').toString('base64'));
                 }, (response) => {
                     if(callback) callback(false);
-                    console.log('Microsoft::API::Teams/debug/onDeny:', response);
                 });
             }
 
