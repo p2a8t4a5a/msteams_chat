@@ -47,29 +47,38 @@ export class ChatWindow extends BrowserWindow {
     }
 
     private bind_user_events(){
-        // sorry for this code, time is 4:38AM
         let poll_events = (next?: string) => {
             this.teams_api?.make_poll_event(next).then((response) => {
                 if(response.data){
                     if(Utils.objectIsValid(response.data.eventMessages)){
                         response.data.eventMessages.forEach((curMsg: any) => {
-                            // console.log('curMsg:', curMsg);
-                            if(Utils.objectIsValid(curMsg, curMsg.type, curMsg.resourceLink, curMsg.resourceType, curMsg.resource, curMsg.resource.content, curMsg.resource.imdisplayname, curMsg.resource.id)){
-                                // append message
-                                if(curMsg.type == 'EventMessage' && curMsg.resourceLink.search(this.teams_api?.chat_id) != -1 && curMsg.resourceType == 'NewMessage'){
-                                    let msgType = curMsg.resource.messagetype;
-                                    if(/(Text|RichText\/Html)/gi.test(msgType)){
-                                        this.webContents.send(ui_events_pipe, 'new_message', {
-                                            author: curMsg.resource.imdisplayname,
-                                            content: curMsg.resource.content,
-                                            message_type: curMsg.resource.messagetype,
-                                            message_id: curMsg.resource.id
-                                        });
-                                    }
+                            if(!Utils.objectIsValid(curMsg)) return;
+
+                            let messageTemplate = {
+                                type: 'string',
+                                resourceLink: 'string',
+                                resourceType: 'string',
+                                resource: {
+                                    id: 'string/number',
+                                    imdisplayname: 'string',
+                                    content: 'string',
+                                    messagetype: 'string'
+                                }
+                            };
+                            
+                            if(Utils.structIsValid(messageTemplate, curMsg) && curMsg.resourceLink.search(this.teams_api?.chat_id) != -1 && curMsg.type == 'EventMessage' && curMsg.resourceType == 'NewMessage'){
+                                if(/(Text|RichText\/Html)/gi.test(curMsg.resource.messagetype)){
+                                    this.webContents.send(ui_events_pipe, 'new_message', {
+                                        author: curMsg.resource.imdisplayname,
+                                        content: curMsg.resource.content,
+                                        message_type: curMsg.resource.messagetype,
+                                        message_id: curMsg.resource.id
+                                    });
                                 }
                             }
                         });
                     }
+
                     if(Utils.objectIsValid(response.data.next)) poll_events(response.data.next);
                 }
             }).catch(() => {});
