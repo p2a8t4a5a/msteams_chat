@@ -1,4 +1,4 @@
-import {dialog, BrowserWindow, ipcMain, clipboard, Menu, webContents} from "electron";
+import {app, dialog, BrowserWindow, ipcMain, clipboard, Menu, webContents} from "electron";
 import {Utils} from "./utils";
 import * as path from "path";
 import {UserData} from "./user_data";
@@ -16,7 +16,7 @@ export default class Application {
     private provideAccessWindow: BrowserWindow | null = null;
     private chatWindow: BrowserWindow | null = null;
 
-    constructor(private app: Electron.App, private protocol: string){
+    constructor(private protocol: string){
         this.user_data = new UserData('./user.dat');
     }
 
@@ -31,10 +31,10 @@ export default class Application {
     }
 
     public set_second_instance_lock(){
-        if(!this.app.requestSingleInstanceLock()){
-            this.app.quit();
+        if(!app.requestSingleInstanceLock()){
+            app.quit();
         }else{
-            this.app.on('second-instance', (event, commandLine, workingDirectory) => {
+            app.on('second-instance', (event, commandLine, workingDirectory) => {
                 if(this.provideAccessWindow && commandLine.length > 0){
                     if(this.provideAccessWindow.isMinimized()) this.provideAccessWindow.restore();
                     this.provideAccessWindow.focus();
@@ -67,9 +67,9 @@ export default class Application {
 
     public setup_protocol() : void {
         if(process.defaultApp && process.argv.length >= 2){
-            this.app.setAsDefaultProtocolClient(this.protocol, process.execPath, [path.resolve(process.argv[1])]);
+            app.setAsDefaultProtocolClient(this.protocol, process.execPath, [path.resolve(process.argv[1])]);
         }else{
-            this.app.setAsDefaultProtocolClient(this.protocol);
+            app.setAsDefaultProtocolClient(this.protocol);
         }
     }
 
