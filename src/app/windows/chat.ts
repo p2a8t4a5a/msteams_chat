@@ -35,7 +35,7 @@ export class ChatWindow extends BrowserWindow {
     }
 
     private bind_events(){
-        this.once('ready-to-show', () => {
+        this.webContents.once('did-finish-load', () => {
             this.setAlwaysOnTop(true);
             this.setIgnoreMouseEvents(true, {
                 forward: true

@@ -25,7 +25,7 @@ export class ProvideAccessWindow extends BrowserWindow {
     }
 
     private bind_events(){
-        this.once('ready-to-show', () => {
+        this.webContents.on('did-finish-load', () => {
             if(this.readyToShow) this.readyToShow();
         });
     }
