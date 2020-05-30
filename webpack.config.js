@@ -17,11 +17,7 @@ module.exports = [
                 {
                     test: /\.ts$/,
                     use: 'ts-loader'
-                },
-                // {
-                //     test: /\.html$/,
-                //     use: 'html-loader'
-                // }
+                }
             ]
         },
         resolve: {

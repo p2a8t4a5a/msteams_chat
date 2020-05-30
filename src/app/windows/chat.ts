@@ -3,6 +3,7 @@ import * as fs from "fs";
 import {Utils} from "../utils";
 import {Microsoft} from "../ms_api/teams";
 import * as path from "path";
+import * as active_window from "active_window";
 
 // const backend_events_pipe = 'backend-events-pipe';
 const ui_events_pipe = 'ui-events-pipe';
@@ -44,6 +45,20 @@ export class ChatWindow extends BrowserWindow {
             
             if(this.readyToShow) this.readyToShow();
         });
+
+        if(active_window.getActiveWindow){
+            let lastActiveWindow;
+            setInterval(() => {
+                lastActiveWindow = active_window.getActiveWindow();
+                if(lastActiveWindow.process_path){
+                    if(path.basename(lastActiveWindow.process_path) == "Teams.exe"){
+                        this.webContents.send(ui_events_pipe, "hide_chat");
+                    }else{
+                        this.webContents.send(ui_events_pipe, "show_chat");
+                    }
+                }
+            }, 500);
+        }
     }
 
     private bind_user_events(){

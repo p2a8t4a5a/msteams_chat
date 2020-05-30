@@ -6,13 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
+    "rebuild_modules": "electron-rebuild -f -w active_window",
     "build": "webpack",
     "pack:win": "electron-builder --win --ia32"
   },
   "author": "lexagr",
   "license": "ISC",
   "dependencies": {
-    "active-win": "^6.1.0",
+    "active_window": "../active_window",
     "axios": "^0.19.2",
     "jquery": "^3.5.1"
   },
@@ -20,6 +21,7 @@
     "copy-webpack-plugin": "^6.0.1",
     "electron": "^8.3.0",
     "electron-builder": "^22.6.1",
+    "electron-rebuild": "^1.11.0",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
     "ts-loader": "^7.0.4",
