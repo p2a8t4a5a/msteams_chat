@@ -10,6 +10,7 @@ const ui_events_pipe = 'ui-events-pipe';
 
 export class ChatWindow extends BrowserWindow {
     private tray : Tray | null = null;
+    private isManualHidden : boolean = false;
 
     constructor(private teams_api?: Microsoft.API.Teams | null, private readyToShow?: Function){
         super({
@@ -53,7 +54,7 @@ export class ChatWindow extends BrowserWindow {
                 if(lastActiveWindow.process_path){
                     if(path.basename(lastActiveWindow.process_path) == "Teams.exe"){
                         this.webContents.send(ui_events_pipe, "hide_chat");
-                    }else{
+                    }else if(!this.isManualHidden){
                         this.webContents.send(ui_events_pipe, "show_chat");
                     }
                 }
@@ -111,10 +112,12 @@ export class ChatWindow extends BrowserWindow {
                         {
                             label: 'Скрыть/показать чат',
                             click: () => {
-                                if(this.isVisible()){
-                                    this.hide();
+                                if(!this.isManualHidden){
+                                    this.webContents.send(ui_events_pipe, "hide_chat");
+                                    this.isManualHidden = true;
                                 }else{
-                                    this.show();
+                                    this.webContents.send(ui_events_pipe, "show_chat");
+                                    this.isManualHidden = false;
                                 }
                             }
                         },
