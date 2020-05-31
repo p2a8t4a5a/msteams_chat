@@ -39,14 +39,17 @@ ipcRenderer.on(ui_events_pipe, (event, msg, data) => {
                     let newMsg = $(`<li class="message" data-message-id="${data.message_id}">
                         <div class="author">${data.author}</div>
                         <div class="content">${data.content}</div>
-                    </li>`);
+                    </li>`).addClass('hide');
         
                     let messages_block = $('ul.messages');
                     let messages = messages_block.find('li.message');
         
                     $('.content-prompt').closest('li.message').remove();
                     messages_block.append(newMsg);
-        
+                    setTimeout(() => {
+                        newMsg.removeClass('hide');
+                    }, 250);
+                    
                     if(messages_block.height() > max_window_height){
                         let needToClear = messages_block.height()-max_window_height;
                         let clearedHeight = 0;
