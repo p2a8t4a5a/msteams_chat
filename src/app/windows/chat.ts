@@ -104,7 +104,7 @@ export class ChatWindow extends BrowserWindow {
         ipcMain.on(ui_events_pipe, (event, msg) => {
             if(msg){
                 if(msg == 'put-to-tray'){
-                    let iconPath = 'dist/ui/img/teams_logo.png';
+                    let iconPath = path.resolve(app.getAppPath(), 'dist/ui/img/teams_logo.png');
                     this.tray = new Tray(iconPath);
 
                     this.tray.setTitle('MSTeams Chat');
